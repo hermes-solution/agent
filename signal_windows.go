@@ -5,11 +5,15 @@ import (
 	"os"
 )
 
-func KillProcess(id int) {
+func KillProcess(id int) error {
 	p, err := os.FindProcess(id)
-	if err == nil && p != nil {
-		_ = p.Signal(windows.SIGINT)
+	if err != nil {
+		return err
 	}
+	if err == nil && p != nil {
+		return p.Signal(windows.SIGINT)
+	}
+	return nil
 }
 
 func GetSingal() []os.Signal {

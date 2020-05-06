@@ -53,7 +53,12 @@ func checksumAndReload() {
 	}
 	if fileChecksum == "" || fileChecksum != checksum {
 		if cmd != nil {
-			KillProcess(cmd.Process.Pid)
+			err = KillProcess(cmd.Process.Pid)
+			if err != nil {
+				log.Println("kill old process get error", err)
+			} else {
+				log.Println("kill old process successful")
+			}
 		}
 		args := make([]string, 0)
 		args = append(args, "-c")
@@ -98,7 +103,7 @@ func main() {
 
 	if useApi {
 		http.HandleFunc("/config", func(writer http.ResponseWriter, request *http.Request) {
-			
+
 		})
 		go func() {
 			err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", apiPort), nil)

@@ -8,6 +8,7 @@
 !Jenkinsfile
 !Buildpackfile
 !Buildpackfile.*
+*.upx
 
 # Unignore all dirs
 !*/
