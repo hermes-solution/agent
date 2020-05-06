@@ -100,10 +100,16 @@ func main() {
 			}
 		}()
 	}
-
 	if useApi {
 		http.HandleFunc("/config", func(writer http.ResponseWriter, request *http.Request) {
-
+			if request.Method == "POST" {
+			} else if request.Method == "GET" {
+			} else {
+			}
+			writer.Header().Set("Content-Type", "application/json")
+			writer.Header().Set("Server", "hermes-agent")
+			writer.WriteHeader(200)
+			_, _ = writer.Write([]byte("{\"code\":200,\"message\":\"OK\"}"))
 		})
 		go func() {
 			err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", apiPort), nil)
@@ -125,7 +131,10 @@ func main() {
 		<-signalChannel
 		signal.Stop(signalChannel)
 		if cmd != nil {
-			KillProcess(cmd.Process.Pid)
+			err := KillProcess(cmd.Process.Pid)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 		break
 	}

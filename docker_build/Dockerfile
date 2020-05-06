@@ -1,6 +1,13 @@
 FROM fluent/fluentd:v1.10.3-1.0
 
-ADD fluentd.conf /fluentd/etc/fluentd.conf
-ADD agent /usr/bin/agent
+USER root
+RUN mkdir -p /hermes \
+	&& mkdir -p /hermes/bin
 
-ENTRYPOINT ["/usr/bin/agent"]
+COPY fluentd.conf /fluentd/etc/fluentd.conf
+COPY agent /hermes/bin/agent
+COPY entrypoint.sh /hermes/bin/entrypoint.sh
+
+ENV PATH="/hermes/bin:${PATH}"
+ENTRYPOINT ["tini",  "--", "/hermes/bin/entrypoint.sh"]
+CMD ["agent"]
