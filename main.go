@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -110,6 +111,7 @@ func rewriteConfig(appendData []byte) error {
 }
 
 func main() {
+	runtime.GOMAXPROCS(1)
 	log.SetOutput(os.Stdout)
 	flag.BoolVar(&useFile, "use-file", false, "using file config is passed via file argument")
 	flag.StringVar(&fileConfig, "file", "", "absolute path of configuration file")
@@ -137,7 +139,7 @@ func main() {
 		go watchOnConfigFile()
 	}
 	if useEtcd && etcdAddress != "" && etcdKey != "" {
-		matchData, err := readConfigFromEtcd()
+		matchData, err := readConfigFromETCD()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -147,7 +149,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		go watchOnEtcdConfigChange()
+		go watchOnETCDConfigChange()
 	}
 	/**
 	start fluentd and scheduler for reloading
@@ -171,7 +173,7 @@ func main() {
 	}
 }
 
-func readConfigFromEtcd() ([]byte, error) {
+func readConfigFromETCD() ([]byte, error) {
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints:   strings.Split(etcdAddress, ","),
 		DialTimeout: 5 * time.Second,
@@ -198,7 +200,7 @@ func readConfigFromEtcd() ([]byte, error) {
 	return nil, nil
 }
 
-func watchOnEtcdConfigChange() {
+func watchOnETCDConfigChange() {
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints:   strings.Split(etcdAddress, ","),
 		DialTimeout: 5 * time.Second,
@@ -211,8 +213,12 @@ func watchOnEtcdConfigChange() {
 	}()
 
 	rch := cli.Watch(context.Background(), etcdKey)
-	for wresp := range rch {
-		for _, ev := range wresp.Events {
+	for {
+		response := <-rch
+		if response.Canceled {
+			break
+		}
+		for _, ev := range response.Events {
 			err = rewriteConfig(ev.Kv.Value)
 			if err != nil {
 				log.Fatal(err)
