@@ -8,6 +8,8 @@ COPY forward.conf /hermes/forward.conf
 COPY agent /hermes/bin/agent
 COPY entrypoint.sh /hermes/bin/entrypoint.sh
 
+EXPOSE 8080
+
 ENV PATH="/hermes/bin:${PATH}"
 ENTRYPOINT ["tini",  "--", "/hermes/bin/entrypoint.sh"]
 CMD ["agent"]
