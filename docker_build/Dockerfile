@@ -4,7 +4,7 @@ USER root
 RUN mkdir -p /hermes \
 	&& mkdir -p /hermes/bin
 
-COPY fluentd.conf /fluentd/etc/fluentd.conf
+COPY forward.conf /hermes/forward.conf
 COPY agent /hermes/bin/agent
 COPY entrypoint.sh /hermes/bin/entrypoint.sh
 
