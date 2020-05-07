@@ -4,6 +4,8 @@ USER root
 RUN mkdir -p /hermes \
 	&& mkdir -p /hermes/bin
 
+COPY out_http_with_injection.rb /etc/fluent/plugin/
+
 COPY forward.conf /hermes/forward.conf
 COPY agent /hermes/bin/agent
 COPY entrypoint.sh /hermes/bin/entrypoint.sh
