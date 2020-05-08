@@ -12,7 +12,6 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -111,7 +110,7 @@ func rewriteConfig(appendData []byte) error {
 }
 
 func main() {
-	runtime.GOMAXPROCS(1)
+	//runtime.GOMAXPROCS(1)
 	log.SetOutput(os.Stdout)
 	flag.BoolVar(&useFile, "use-file", false, "using file config is passed via file argument")
 	flag.StringVar(&fileConfig, "file", "", "absolute path of configuration file")

@@ -23,11 +23,12 @@ require 'fluent/plugin_helper/socket'
 
 module Fluent::Plugin
   class HTTPWithInjectionOutput < Output
-    Fluent::Plugin.register_output('http_with_injection', self)
+    Fluent::Plugin.register_output('hermeshttp', self)
 
     class RetryableResponse < StandardError; end
 
-    helpers :inject, :formatter
+    #helpers :inject, :formatter
+    helpers :formatter
 
     desc 'The endpoint for HTTP request, e.g. http://example.com/api'
     config_param :endpoint, :string
@@ -111,8 +112,10 @@ module Fluent::Plugin
     end
 
     def format(tag, time, record)
-      record = inject_values_to_record(tag, time, record)
-      @formatter.format(tag, time, record)
+      r = record.dup
+      r["fluentd_time"] = (time.to_f * 1000).to_i
+	  r["fluentd_tag"] = tag
+      @formatter.format(tag, time, r)
     end
 
     def write(chunk)
